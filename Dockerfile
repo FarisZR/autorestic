@@ -1,12 +1,13 @@
 FROM golang:1.17-alpine as builder
 
 WORKDIR /app
-COPY go.* .
+COPY go.* ./
 RUN go mod download
 COPY . .
 RUN go build
 
 FROM alpine
-RUN apk add --no-cache restic rclone bash openssh
 COPY --from=builder /app/autorestic /usr/bin/autorestic
-CMD [ "autorestic" ]
+COPY entrypoint.sh /entrypoint.sh
+RUN chmod +x /entrypoint.sh
+CMD [ "/entrypoint.sh" ]
